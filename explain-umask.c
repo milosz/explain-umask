@@ -13,6 +13,10 @@ int main()
   int octal_mask_user, octal_mask_group, octal_mask_other;
   int binary_mask[8]; // UUUGGGOOO
 
+  // calculated default permissions
+  int octal_def_user_file, octal_def_group_file, octal_def_other_file;
+  int octal_def_user_dir, octal_def_group_dir, octal_def_other_dir;
+
   // temporary variable
   int i;
 
@@ -55,6 +59,49 @@ int main()
   if(octal_mask_other & 2) printf("w");
   if(octal_mask_other & 1) printf("x");
   printf("\n");
+
+  printf("\n"); // spacer
+
+  // calculate default permissions
+  octal_def_user_file  = octal_mask_user  > 6 ? 0 : (6 - octal_mask_user);
+  octal_def_group_file = octal_mask_group > 6 ? 0 : (6 - octal_mask_group);
+  octal_def_other_file = octal_mask_other > 6 ? 0 : (6 - octal_mask_other);
+  octal_def_user_dir   =                            (7 - octal_mask_user);
+  octal_def_group_dir  =                            (7 - octal_mask_group);
+  octal_def_other_dir  =                            (7 - octal_mask_other);
+
+  // print default permissions
+  printf("Default file permissions:      666 - %i%i%i = %i%i%i ",
+	 octal_mask_user, octal_mask_group, octal_mask_other,
+	 octal_def_user_file, octal_def_group_file, octal_def_other_file);
+
+  printf("[-");
+  if(octal_def_user_file  & 4) printf("r"); else printf("-");
+  if(octal_def_user_file  & 2) printf("w"); else printf("-");
+  if(octal_def_user_file  & 1) printf("x"); else printf("-");
+  if(octal_def_group_file & 4) printf("r"); else printf("-");
+  if(octal_def_group_file & 2) printf("w"); else printf("-");
+  if(octal_def_group_file & 1) printf("x"); else printf("-");
+  if(octal_def_other_file & 4) printf("r"); else printf("-");
+  if(octal_def_other_file & 2) printf("w"); else printf("-");
+  if(octal_def_other_file & 1) printf("x"); else printf("-");
+  printf("]\n");
+
+  printf("Default directory permissions: 777 - %i%i%i = %i%i%i ",
+	 octal_mask_user, octal_mask_group, octal_mask_other,
+	 octal_def_user_dir, octal_def_group_dir,octal_def_other_dir);
+
+  printf("[d");
+  if(octal_def_user_dir  & 4) printf("r"); else printf("-");
+  if(octal_def_user_dir  & 2) printf("w"); else printf("-");
+  if(octal_def_user_dir  & 1) printf("x"); else printf("-");
+  if(octal_def_group_dir & 4) printf("r"); else printf("-");
+  if(octal_def_group_dir & 2) printf("w"); else printf("-");
+  if(octal_def_group_dir & 1) printf("x"); else printf("-");
+  if(octal_def_other_dir & 4) printf("r"); else printf("-");
+  if(octal_def_other_dir & 2) printf("w"); else printf("-");
+  if(octal_def_other_dir & 1) printf("x"); else printf("-");
+  printf("]\n");
 
   // exit
   exit(0);
