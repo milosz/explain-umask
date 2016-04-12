@@ -41,6 +41,21 @@ int main()
   }
   printf("\n");
 
+  // calculate and print symbolic representation
+  printf("Symbolic representation: u=");
+  if(octal_mask_user & 4) printf("r");
+  if(octal_mask_user & 2) printf("w");
+  if(octal_mask_user & 1) printf("x");
+  printf(",g=");
+  if(octal_mask_group & 4) printf("r");
+  if(octal_mask_group & 2) printf("w");
+  if(octal_mask_group & 1) printf("x");
+  printf(",o=");
+  if(octal_mask_other & 4) printf("r");
+  if(octal_mask_other & 2) printf("w");
+  if(octal_mask_other & 1) printf("x");
+  printf("\n");
+
   // exit
   exit(0);
 }
