@@ -11,6 +11,10 @@ int main()
 
   // extracted values
   int octal_mask_user, octal_mask_group, octal_mask_other;
+  int binary_mask[8]; // UUUGGGOOO
+
+  // temporary variable
+  int i;
 
   // read umask
   mask=read_umask();
@@ -23,6 +27,19 @@ int main()
   // print octal representation
   printf("Octal    representation: %i%i%i\n", \
 	 octal_mask_user, octal_mask_group, octal_mask_other);
+
+  //calculate binary form
+  for(i=8; i>=0; i--) {
+    binary_mask[-(i-8)]=(mask & (1 << i)) ? 1 : 0;
+  }
+
+  // print binary representation
+  printf("Binary   representation: ");
+  for(i=0; i<=8; i++) {
+    printf("%i",binary_mask[i]);
+    if(i == 2 || i == 5) printf(" "); // add space
+  }
+  printf("\n");
 
   // exit
   exit(0);
