@@ -1,116 +1,82 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/stat.h>
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;sys/stat.h&gt;
 
 mode_t read_umask(void);
+void print_permissions(int octal_value);
+void print_permission_string(int user, int group, int other, char prefix);
 
 int main()
 {
-  // mask value
-  mode_t mask;
+  mode_t mask = read_umask();
 
-  // extracted values
-  int octal_mask_user, octal_mask_group, octal_mask_other;
-  int binary_mask[8]; // UUUGGGOOO
+  // Extract octal values
+  int octal_mask_user  = mask &gt;&gt; 6;
+  int octal_mask_group = (mask & 56) &gt;&gt; 3;
+  int octal_mask_other = mask & 7;
 
-  // calculated default permissions
-  int octal_def_user_file, octal_def_group_file, octal_def_other_file;
-  int octal_def_user_dir, octal_def_group_dir, octal_def_other_dir;
+  // Print octal representation
+  printf("Octal    representation: %i%i%i\n",
+         octal_mask_user, octal_mask_group, octal_mask_other);
 
-  // temporary variable
-  int i;
-
-  // read umask
-  mask=read_umask();
-
-  // calculate octal values
-  octal_mask_user=mask >> 6;          //  XXX000000
-  octal_mask_group=(mask & 56) >> 3;  //  000XXX000
-  octal_mask_other=mask & 7;          //  000000XXX
-
-  // print octal representation
-  printf("Octal    representation: %i%i%i\n", \
-	 octal_mask_user, octal_mask_group, octal_mask_other);
-
-  //calculate binary form
-  for(i=8; i>=0; i--) {
-    binary_mask[-(i-8)]=(mask & (1 << i)) ? 1 : 0;
-  }
-
-  // print binary representation
+  // Print binary representation
   printf("Binary   representation: ");
-  for(i=0; i<=8; i++) {
-    printf("%i",binary_mask[i]);
-    if(i == 2 || i == 5) printf(" "); // add space
+  for(int i = 8; i &gt;= 0; i--) {
+    printf("%i", (mask & (1 &lt;&lt; i)) ? 1 : 0);
+    if(i == 6 || i == 3) printf(" ");
   }
   printf("\n");
 
-  // calculate and print symbolic representation
+  // Print symbolic representation
   printf("Symbolic representation: u=");
-  if(octal_mask_user & 4) printf("r");
-  if(octal_mask_user & 2) printf("w");
-  if(octal_mask_user & 1) printf("x");
+  print_permissions(octal_mask_user);
   printf(",g=");
-  if(octal_mask_group & 4) printf("r");
-  if(octal_mask_group & 2) printf("w");
-  if(octal_mask_group & 1) printf("x");
+  print_permissions(octal_mask_group);
   printf(",o=");
-  if(octal_mask_other & 4) printf("r");
-  if(octal_mask_other & 2) printf("w");
-  if(octal_mask_other & 1) printf("x");
-  printf("\n");
+  print_permissions(octal_mask_other);
+  printf("\n\n");
 
-  printf("\n"); // spacer
+  // Calculate default permissions
+  int octal_def_user_file  = (octal_mask_user  &gt; 6) ? 0 : (6 - octal_mask_user);
+  int octal_def_group_file = (octal_mask_group &gt; 6) ? 0 : (6 - octal_mask_group);
+  int octal_def_other_file = (octal_mask_other &gt; 6) ? 0 : (6 - octal_mask_other);
+  int octal_def_user_dir   = 7 - octal_mask_user;
+  int octal_def_group_dir  = 7 - octal_mask_group;
+  int octal_def_other_dir  = 7 - octal_mask_other;
 
-  // calculate default permissions
-  octal_def_user_file  = octal_mask_user  > 6 ? 0 : (6 - octal_mask_user);
-  octal_def_group_file = octal_mask_group > 6 ? 0 : (6 - octal_mask_group);
-  octal_def_other_file = octal_mask_other > 6 ? 0 : (6 - octal_mask_other);
-  octal_def_user_dir   =                            (7 - octal_mask_user);
-  octal_def_group_dir  =                            (7 - octal_mask_group);
-  octal_def_other_dir  =                            (7 - octal_mask_other);
-
-  // print default permissions
+  // Print default file permissions
   printf("Default file permissions:      666 - %i%i%i = %i%i%i ",
-	 octal_mask_user, octal_mask_group, octal_mask_other,
-	 octal_def_user_file, octal_def_group_file, octal_def_other_file);
+         octal_mask_user, octal_mask_group, octal_mask_other,
+         octal_def_user_file, octal_def_group_file, octal_def_other_file);
+  print_permission_string(octal_def_user_file, octal_def_group_file, 
+                          octal_def_other_file, '-');
 
-  printf("[-");
-  if(octal_def_user_file  & 4) printf("r"); else printf("-");
-  if(octal_def_user_file  & 2) printf("w"); else printf("-");
-  if(octal_def_user_file  & 1) printf("x"); else printf("-");
-  if(octal_def_group_file & 4) printf("r"); else printf("-");
-  if(octal_def_group_file & 2) printf("w"); else printf("-");
-  if(octal_def_group_file & 1) printf("x"); else printf("-");
-  if(octal_def_other_file & 4) printf("r"); else printf("-");
-  if(octal_def_other_file & 2) printf("w"); else printf("-");
-  if(octal_def_other_file & 1) printf("x"); else printf("-");
-  printf("]\n");
-
+  // Print default directory permissions
   printf("Default directory permissions: 777 - %i%i%i = %i%i%i ",
-	 octal_mask_user, octal_mask_group, octal_mask_other,
-	 octal_def_user_dir, octal_def_group_dir,octal_def_other_dir);
+         octal_mask_user, octal_mask_group, octal_mask_other,
+         octal_def_user_dir, octal_def_group_dir, octal_def_other_dir);
+  print_permission_string(octal_def_user_dir, octal_def_group_dir,
+                          octal_def_other_dir, 'd');
 
-  printf("[d");
-  if(octal_def_user_dir  & 4) printf("r"); else printf("-");
-  if(octal_def_user_dir  & 2) printf("w"); else printf("-");
-  if(octal_def_user_dir  & 1) printf("x"); else printf("-");
-  if(octal_def_group_dir & 4) printf("r"); else printf("-");
-  if(octal_def_group_dir & 2) printf("w"); else printf("-");
-  if(octal_def_group_dir & 1) printf("x"); else printf("-");
-  if(octal_def_other_dir & 4) printf("r"); else printf("-");
-  if(octal_def_other_dir & 2) printf("w"); else printf("-");
-  if(octal_def_other_dir & 1) printf("x"); else printf("-");
+  return 0;
+}
+
+void print_permissions(int octal_value) {
+  printf("%c", (octal_value & 4) ? 'r' : '-');
+  printf("%c", (octal_value & 2) ? 'w' : '-');
+  printf("%c", (octal_value & 1) ? 'x' : '-');
+}
+
+void print_permission_string(int user, int group, int other, char prefix) {
+  printf("[%c", prefix);
+  print_permissions(user);
+  print_permissions(group);
+  print_permissions(other);
   printf("]\n");
-
-  // exit
-  exit(0);
 }
 
 mode_t read_umask(void) {
-  // how to read the mask with umask without changing it permanently:
-  // http://www.gnu.org/software/libc/manual/html_node/Setting-Permissions.html
-  mode_t mask = umask (0);
-  umask (mask);
+  mode_t mask = umask(0);
+  umask(mask);
   return mask;
 }
