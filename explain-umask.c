@@ -1,6 +1,6 @@
-#include &lt;stdlib.h&gt;
-#include &lt;stdio.h&gt;
-#include &lt;sys/stat.h&gt;
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/stat.h>
 
 mode_t read_umask(void);
 void print_permissions(int octal_value);
@@ -11,8 +11,8 @@ int main()
   mode_t mask = read_umask();
 
   // Extract octal values
-  int octal_mask_user  = mask &gt;&gt; 6;
-  int octal_mask_group = (mask & 56) &gt;&gt; 3;
+  int octal_mask_user  = mask >> 6;
+  int octal_mask_group = (mask & 56) >> 3;
   int octal_mask_other = mask & 7;
 
   // Print octal representation
@@ -21,8 +21,8 @@ int main()
 
   // Print binary representation
   printf("Binary   representation: ");
-  for(int i = 8; i &gt;= 0; i--) {
-    printf("%i", (mask & (1 &lt;&lt; i)) ? 1 : 0);
+  for(int i = 8; i >= 0; i--) {
+    printf("%i", (mask & (1 << i)) ? 1 : 0);
     if(i == 6 || i == 3) printf(" ");
   }
   printf("\n");
@@ -37,9 +37,9 @@ int main()
   printf("\n\n");
 
   // Calculate default permissions
-  int octal_def_user_file  = (octal_mask_user  &gt; 6) ? 0 : (6 - octal_mask_user);
-  int octal_def_group_file = (octal_mask_group &gt; 6) ? 0 : (6 - octal_mask_group);
-  int octal_def_other_file = (octal_mask_other &gt; 6) ? 0 : (6 - octal_mask_other);
+  int octal_def_user_file  = (octal_mask_user  > 6) ? 0 : (6 - octal_mask_user);
+  int octal_def_group_file = (octal_mask_group > 6) ? 0 : (6 - octal_mask_group);
+  int octal_def_other_file = (octal_mask_other > 6) ? 0 : (6 - octal_mask_other);
   int octal_def_user_dir   = 7 - octal_mask_user;
   int octal_def_group_dir  = 7 - octal_mask_group;
   int octal_def_other_dir  = 7 - octal_mask_other;
